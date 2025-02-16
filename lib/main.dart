@@ -21,11 +21,29 @@ class MyApp extends StatelessWidget {
       supportedLocales: const [Locale('hu')],
       title: 'Kyfi',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
         useMaterial3: true,
+        progressIndicatorTheme: ProgressIndicatorThemeData(
+          year2023: false,
+        ),
+        pageTransitionsTheme: PageTransitionsTheme(
+          builders: Map<TargetPlatform, PageTransitionsBuilder>.fromIterable(
+            TargetPlatform.values,
+            value: (_) => const FadeForwardsPageTransitionsBuilder(),
+          ),
+        ),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
       ),
       darkTheme: ThemeData(
           useMaterial3: true,
+          progressIndicatorTheme: ProgressIndicatorThemeData(
+            year2023: false,
+          ),
+          pageTransitionsTheme: PageTransitionsTheme(
+            builders: Map<TargetPlatform, PageTransitionsBuilder>.fromIterable(
+              TargetPlatform.values,
+              value: (_) => const FadeForwardsPageTransitionsBuilder(),
+            ),
+          ),
           colorScheme: ColorScheme.fromSeed(
               seedColor: Colors.teal, brightness: Brightness.dark)),
       home: const MyHomePage(title: 'Kyfi'),
@@ -43,7 +61,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
   @override
   Widget build(BuildContext context) {
     return const MainNavbar();

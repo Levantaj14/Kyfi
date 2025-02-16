@@ -48,8 +48,6 @@ dependencies:
   flutter_animate: ^4.5.2
   connectivity_plus: ^6.1.0
   timezone: ^0.10.0
-  flutter_localizations:
-    sdk: flutter
 
 dev_dependencies:
   flutter_test:
