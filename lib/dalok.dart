@@ -3,15 +3,16 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:diacritic/diacritic.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:Kyfi/szoveg.dart';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:Kyfi/MyStatefulBuilder.dart';
+import 'package:Kyfi/my_stateful_builder.dart';
 import 'package:smooth_counter/smooth_counter.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class Terms {
   String cim;
   int index;
-
   Terms({required this.cim, required this.index});
 }
 
@@ -55,15 +56,6 @@ class _DalokState extends State<Dalok> with AutomaticKeepAliveClientMixin {
     duration: const Duration(seconds: 2),
   );
 
-  void _handleButtonPress() {
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => szoveg(
-                  i: nextRandom,
-                )));
-  }
-
   @override
   void dispose() {
     /*_controller.dispose();*/
@@ -82,7 +74,7 @@ class _DalokState extends State<Dalok> with AutomaticKeepAliveClientMixin {
     super.build(context);
     return Scaffold(
         appBar: AppBar(
-          title: const Text('Dalok'),
+          title: Text('Dalok', style: GoogleFonts.getFont('Oranienbaum')),
           actions: [
             IconButton(
               onPressed: () {
@@ -102,8 +94,9 @@ class _DalokState extends State<Dalok> with AutomaticKeepAliveClientMixin {
                             return Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Text('Lássuk a szerencsés számot',
-                                    style: TextStyle(fontSize: 18)),
+                                Text('Lássuk a szerencsés számot',
+                                    style: GoogleFonts.oranienbaum(
+                                        textStyle: const TextStyle(fontSize: 24))),
                                 const SizedBox(
                                   height: 5,
                                 ),
@@ -145,7 +138,7 @@ class _DalokState extends State<Dalok> with AutomaticKeepAliveClientMixin {
                                                     context,
                                                     MaterialPageRoute(
                                                         builder: (context) =>
-                                                            szoveg(
+                                                            Szoveg(
                                                                 i: nextRandom)));
                                               }
                                             : null,
@@ -186,12 +179,12 @@ class _DalokState extends State<Dalok> with AutomaticKeepAliveClientMixin {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => szoveg(
+                              builder: (context) => Szoveg(
                                     i: index + 1,
                                   )));
                     },
                   );
-                })
+                }).animate().fade()
             : const Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -263,7 +256,7 @@ class CustomSearchDelegate extends SearchDelegate {
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => szoveg(
+                    builder: (context) => Szoveg(
                           i: result.index,
                         )));
           },

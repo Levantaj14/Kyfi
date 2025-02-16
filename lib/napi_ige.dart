@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/dom.dart' as dom;
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class napiIge extends StatefulWidget {
-  const napiIge({super.key});
+class NapiIge extends StatefulWidget {
+  const NapiIge({super.key});
 
   @override
-  State<napiIge> createState() => NapiIgeState();
+  State<NapiIge> createState() => NapiIgeState();
 }
 
-class NapiIgeState extends State<napiIge> with AutomaticKeepAliveClientMixin {
+class NapiIgeState extends State<NapiIge> with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
   String oszov = '';
@@ -20,17 +23,11 @@ class NapiIgeState extends State<napiIge> with AutomaticKeepAliveClientMixin {
   String ujszov = '';
   String ujr = '';
   bool net = true;
-
-  //bool visible = false;
-
-  /*Future getExpl() async {
-    final prefs = await SharedPreferences.getInstance();
-    visible = prefs.getBool("Explanation") ?? false;
-    setState(() {});
-  }*/
+  var now = DateTime.now();
+  var formatter = DateFormat('yyyy-MM-dd');
 
   Future<void> _explanationLaunch() async {
-    var url = Uri.parse('https://www.evangelikus.hu/hitunk/lelki-taplalek');
+    var url = Uri.parse("https://www.evangelikus.hu/hitunk/lelki-taplalek");
     if (!await launchUrl(url)) {
       throw Exception('Nem lehetett megnyitni az oldalt');
     }
@@ -38,12 +35,11 @@ class NapiIgeState extends State<napiIge> with AutomaticKeepAliveClientMixin {
 
   @override
   void initState() {
-    //getExpl();
     super.initState();
-    getIge();
+    _getIge();
   }
 
-  Future getIge() async {
+  Future _getIge() async {
     final connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult[0] == ConnectivityResult.none) {
       setState(() {
@@ -55,31 +51,19 @@ class NapiIgeState extends State<napiIge> with AutomaticKeepAliveClientMixin {
         net = false;
       });
     } else {
-      final url = Uri.parse('https://www.evangelikus.hu/hitunk/lelki-taplalek');
-      //final url = Uri.parse('https://www.evangelikus.hu/hitunk/lelki-taplalek?napiigenap=2024-09-30');
-      final response = await http.get(url);
+      String formattedDate = formatter.format(now);
+      final response = await http.get(Uri.parse(
+          'https://www.evangelikus.hu/hitunk/lelki-taplalek?napiigenap=$formattedDate'));
       dom.Document html = dom.Document.html(response.body);
-      /*final elso = html
-          .querySelector('p:nth-child(2)')
+      final osszSzoveg = html
+          .querySelectorAll('p')
           .map((element) => element.innerHtml.trim())
           .toList();
-      oszov = elso[0].substring(0, elso[0].indexOf('<') - 2);
-      or = elso[0].substring(elso[0].indexOf('>') + 1);
-      or = or.substring(0, or.indexOf('<'));
-      final masodik = html
-          .querySelectorAll('p:nth-child(4)')
-          .map((element) => element.innerHtml.trim())
-          .toList();
-      ujszov = masodik[0].substring(0, masodik[0].indexOf('<') - 2);
-      ujr = masodik[0].substring(masodik[0].indexOf('>') + 1);
-      ujr = ujr.substring(0, ujr.indexOf('<'));
-      setState(() {});*/
-      final osszSzoveg = html.querySelectorAll('p').map((element) => element.innerHtml.trim()).toList();
-      oszov = osszSzoveg[2].substring(0, osszSzoveg[2].indexOf('<') - 2);
-      or = osszSzoveg[2].substring(osszSzoveg[2].indexOf('>') + 1);
+      oszov = osszSzoveg[3].substring(0, osszSzoveg[2].indexOf('<') - 2);
+      or = osszSzoveg[3].substring(osszSzoveg[2].indexOf('>') + 1);
       or = or.substring(0, or.indexOf('<') - 1);
-      ujszov = osszSzoveg[3].substring(0, osszSzoveg[3].indexOf('<') - 2);
-      ujr = osszSzoveg[3].substring(osszSzoveg[3].indexOf('>') + 1);
+      ujszov = osszSzoveg[4].substring(0, osszSzoveg[3].indexOf('<') - 2);
+      ujr = osszSzoveg[4].substring(osszSzoveg[3].indexOf('>') + 1);
       ujr = ujr.substring(0, ujr.indexOf('<') - 1);
       setState(() {});
     }
@@ -90,29 +74,38 @@ class NapiIgeState extends State<napiIge> with AutomaticKeepAliveClientMixin {
     super.build(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Napi ige'),
+        title: Text(
+          'Napi ige',
+          style: GoogleFonts.getFont('Oranienbaum'),
+        ),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 10),
             child: Row(
               children: [
                 IconButton(
-                    tooltip: "Az oldal kinyítása",
-                    onPressed: () {
-                      _explanationLaunch();
-                    },
-                    icon: const Icon(Icons.language_outlined)),
+                    tooltip: "Dátum kiválasztása",
+                    onPressed: () {},
+                    icon: const Icon(Icons.calendar_month_outlined)),
                 IconButton(
                     onPressed: () {
                       showDialog(
                           context: context,
                           builder: (context) => AlertDialog(
+                                title: Text('További információk',
+                                    style: GoogleFonts.getFont('Oranienbaum')),
                                 content: const Text(
                                     'A napi igék az evangélikus bibliaolvasó Útmutatóból származnak.\nTövábbi információ: evangelikus.hu'),
                                 actions: [
                                   TextButton(
+                                    onPressed: () {
+                                      _explanationLaunch();
+                                    },
+                                    child: const Text('Weboldal kinyítása'),
+                                  ),
+                                  TextButton(
                                       onPressed: () => Navigator.pop(context),
-                                      child: const Text('OK'))
+                                      child: const Text('OK')),
                                 ],
                               ));
                     },
@@ -127,7 +120,7 @@ class NapiIgeState extends State<napiIge> with AutomaticKeepAliveClientMixin {
               padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
               child: RefreshIndicator(
                 onRefresh: () {
-                  return getIge();
+                  return _getIge();
                 },
                 child: ListView(
                   children: [
@@ -190,13 +183,11 @@ class NapiIgeState extends State<napiIge> with AutomaticKeepAliveClientMixin {
                         ),
                       ),
                     ),
-                    /*Visibility(
-                        visible: visible,
-                        child: const Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [Text("Magyarázat")],
-                        ))*/
-                  ],
+                  ].animate(interval: .150.seconds).fadeIn().slideY(
+                      begin: 2,
+                      end: 0,
+                      curve: Curves.easeOutExpo,
+                      duration: 2000.ms),
                 ),
               ),
             )
@@ -217,7 +208,7 @@ class NapiIgeState extends State<napiIge> with AutomaticKeepAliveClientMixin {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Icon(
-                        Icons.question_mark_outlined,
+                        Icons.cloud_off,
                         size: 50,
                       ),
                       const SizedBox(
@@ -234,12 +225,12 @@ class NapiIgeState extends State<napiIge> with AutomaticKeepAliveClientMixin {
                           onPressed: () {
                             setState(() {
                               net = true;
-                              getIge();
+                              _getIge();
                             });
                           },
                           child:
                               const Text('De nekem be van kapcsolva a nettem'))
-                    ],
+                    ].animate(interval: .10.seconds).fadeIn(),
                   ),
                 ),
     );
